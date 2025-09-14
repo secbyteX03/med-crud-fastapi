@@ -1,23 +1,31 @@
+# 🏥 Clinic Management API
+
 <div align="center">
-  <h1>🏥 Clinic Management API</h1>
+  <h1> Clinic Management API</h1>
   <p>
     <em>A modern, robust, and scalable FastAPI-based solution for managing medical clinic operations</em>
-  </p>
-  <p>
-    <a href="#features">Features</a> •
-    <a href="#quick-start">Quick Start</a> •
-    <a href="#api-endpoints">API Endpoints</a> •
-    <a href="#testing">Testing</a> •
-    <a href="#database-schema">Database Schema</a>
   </p>
   <p>
     <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version">
     <img src="https://img.shields.io/badge/FastAPI-0.100.0-green.svg" alt="FastAPI Version">
     <img src="https://img.shields.io/badge/license-MIT-orange.svg" alt="License">
+    <img src="https://img.shields.io/badge/status-active-success.svg" alt="Status">
   </p>
+  <img src="screenshots/banner.png" alt="Clinic Management API" style="max-width: 100%; border-radius: 8px; margin: 20px 0;">
 </div>
 
-## 🌟 Features
+## Table of Contents
+
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [Using the API](#-using-the-api)
+- [API Endpoints](#-api-endpoints)
+- [Project Structure](#-project-structure)
+- [Testing](#-testing)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+## Features
 
 - **Comprehensive Patient Management** - Full CRUD operations for patient records
 - **Efficient Appointment System** - Schedule, update, and track appointments
@@ -27,11 +35,11 @@
 - **Multiple Database Support** - SQLite (default) or MySQL compatible
 - **Secure** - Environment-based configuration and sensitive data protection
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.8+
 - pip (Python package manager)
 - (Optional) MySQL 8.0+ if not using SQLite
 
@@ -43,7 +51,7 @@
    cd med-crud-fastapi
    ```
 
-2. **Set up a virtual environment** (highly recommended)
+2. **Set up a virtual environment**
    ```bash
    # Windows
    python -m venv venv
@@ -62,16 +70,15 @@
 4. **Configure environment variables**
    ```bash
    # Copy the example environment file
-   copy .env.example .env  # Windows
-   cp .env.example .env    # macOS/Linux
+   cp .env.example .env
    ```
    
-   Update the `.env` file with your configuration:
+   Edit `.env` with your configuration:
    ```env
    # Database configuration (SQLite default)
    DATABASE_URL=sqlite:///./clinic.db
    
-   # For MySQL, use:
+   # For MySQL:
    # DATABASE_URL=mysql+pymysql://user:password@localhost/clinic_db
    
    # Security settings
@@ -82,11 +89,7 @@
 
 5. **Initialize the database**
    ```bash
-   # For SQLite (default)
    python init_db.py
-   
-   # For MySQL, ensure the database exists first, then run:
-   # python init_db.py
    ```
 
 6. **Run the application**
@@ -94,34 +97,28 @@
    uvicorn app.main:app --reload
    ```
 
-7. **Access the API documentation**
+7. **Access API documentation**
    - Interactive API docs: http://127.0.0.1:8000/docs
    - Alternative docs: http://127.0.0.1:8000/redoc
 
-## 🖥️ Using the API
+## Using the API
 
-After starting the application, you can interact with the API in several ways:
+### Interactive Documentation
 
-### 1. Using the Interactive API Documentation
-1. Open your web browser and go to: http://127.0.0.1:8000/docs
-2. You'll see all available API endpoints organized by category (Patients and Appointments)
-3. Click on any endpoint to expand it
-4. Click the "Try it out" button to test the endpoint directly from your browser
-5. Fill in any required parameters and click "Execute" to see the response
+![API Documentation](screenshots/api_docs.png)
 
-### 2. Using cURL (Command Line)
+Visit http://127.0.0.1:8000/docs to explore and test all API endpoints directly from your browser.
 
-**Example: Get All Patients**
+### cURL Examples
+
+**Get All Patients**
 ```bash
-curl -X 'GET' \
-  'http://127.0.0.1:8000/patients/' \
-  -H 'accept: application/json'
+curl -X 'GET' 'http://127.0.0.1:8000/patients/' -H 'accept: application/json'
 ```
 
-**Example: Create a New Patient**
+**Create a New Patient**
 ```bash
-curl -X 'POST' \
-  'http://127.0.0.1:8000/patients/' \
+curl -X 'POST' 'http://127.0.0.1:8000/patients/' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -135,26 +132,20 @@ curl -X 'POST' \
   }'
 ```
 
-### 3. Using Postman
-1. Import the provided `postman_collection.json` file into Postman
-2. You'll find pre-configured requests for all API endpoints
-3. Click on any request to send it to the API
-
-### 4. Programmatic Access (Python Example)
-
+### Python Example
 ```python
 import requests
 import json
 
 # Get all patients
 response = requests.get('http://127.0.0.1:8000/patients/')
-print("All Patients:", response.json())
+print("Patients:", response.json())
 
-# Create a new patient
+# Create new patient
 new_patient = {
     "first_name": "Jane",
     "last_name": "Smith",
-    "date_of_birth": "1985-05-15",
+    "date_of_birth": "1985-05-20",
     "gender": "female",
     "phone_number": "0987654321",
     "email": "jane.smith@example.com",
@@ -166,70 +157,34 @@ response = requests.post(
     headers={"Content-Type": "application/json"},
     data=json.dumps(new_patient)
 )
-print("New Patient Created:", response.json())
+print("New Patient:", response.json())
 ```
 
-## 🔌 API Endpoints
+### Postman Example
+
+![Postman Example](screenshots/postman.png)
+
+## API Endpoints
 
 ### Patients
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/patients/` | Get all patients |
-| `GET` | `/patients/{id}` | Get a specific patient |
-| `POST` | `/patients/` | Create a new patient |
-| `PUT` | `/patients/{id}` | Update a patient |
-| `DELETE` | `/patients/{id}` | Delete a patient |
+| Method | Endpoint | Description | Parameters |
+|--------|----------|-------------|------------|
+| `GET` | `/patients/` | Get all patients | - |
+| `GET` | `/patients/{id}` | Get specific patient | Patient ID |
+| `POST` | `/patients/` | Create new patient | Patient data |
+| `PUT` | `/patients/{id}` | Update patient | Patient ID, Updated data |
+| `DELETE` | `/patients/{id}` | Delete patient | Patient ID |
 
 ### Appointments
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/appointments/` | Get all appointments |
-| `GET` | `/appointments/{id}` | Get a specific appointment |
-| `POST` | `/appointments/` | Create a new appointment |
-| `PUT` | `/appointments/{id}` | Update an appointment |
-| `DELETE` | `/appointments/{id}` | Cancel an appointment (soft delete) |
-
-## 🛠️ Usage Examples
-
-### Creating a New Patient
-```bash
-curl -X 'POST' \
-  'http://127.0.0.1:8000/patients/' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "first_name": "John",
-    "last_name": "Doe",
-    "date_of_birth": "1990-01-01",
-    "gender": "male",
-    "phone_number": "1234567890",
-    "email": "john.doe@example.com",
-    "address": "123 Main St"
-  }'
-```
-
-### Getting All Patients
-```bash
-curl -X 'GET' \
-  'http://127.0.0.1:8000/patients/' \
-  -H 'accept: application/json'
-```
-
-### Creating an Appointment
-```bash
-curl -X 'POST' \
-  'http://127.0.0.1:8000/appointments/' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "patient_id": 1,
-    "appointment_date": "2024-01-15T10:00:00",
-    "status": "scheduled",
-    "notes": "Routine checkup"
-  }'
-```
+| Method | Endpoint | Description | Parameters |
+|--------|----------|-------------|------------|
+| `GET` | `/appointments/` | Get all appointments | - |
+| `GET` | `/appointments/{id}` | Get specific appointment | Appointment ID |
+| `POST` | `/appointments/` | Create new appointment | Appointment data |
+| `PUT` | `/appointments/{id}` | Update appointment | Appointment ID, Updated data |
+| `DELETE` | `/appointments/{id}` | Cancel appointment | Appointment ID |
 
 ## 📁 Project Structure
 
@@ -237,183 +192,55 @@ curl -X 'POST' \
 med-crud-fastapi/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py           # FastAPI application
-│   ├── config.py         # Configuration settings
-│   ├── database.py       # Database connection
-│   ├── models.py         # SQLAlchemy models
-│   ├── schemas.py        # Pydantic schemas
-│   ├── crud.py           # Database operations
-│   └── routers/          # API routes
+│   ├── main.py              # FastAPI application
+│   ├── config.py            # Configuration settings
+│   ├── database.py          # Database connection
+│   ├── models.py            # SQLAlchemy models
+│   ├── schemas.py           # Pydantic schemas
+│   ├── crud.py              # Database operations
+│   └── routers/             # API routes
 │       ├── __init__.py
-│       ├── patients.py    # Patient endpoints
-│       └── appointments.py # Appointment endpoints
-├── .env                  # Environment variables
-├── .env.example          # Example environment variables
-├── requirements.txt      # Python dependencies
-├── init_db.py           # Database initialization
-└── README.md            # This file
-```
-
-## 🧠 Advanced Usage
-
-### Using Python Requests
-
-```python
-import requests
-import json
-
-# Create a new patient
-url = "http://127.0.0.1:8000/patients/"
-headers = {
-    "accept": "application/json",
-    "Content-Type": "application/json"
-}
-payload = {
-    "first_name": "Jane",
-    "last_name": "Smith",
-    "date_of_birth": "1985-05-20",
-    "gender": "female",
-    "phone_number": "0987654321",
-    "email": "jane.smith@example.com",
-    "address": "456 Oak St"
-}
-
-response = requests.post(url, headers=headers, data=json.dumps(payload))
-print(response.json())
-```
-
-### Common Error Responses
-
-```json
-// 400 Bad Request
-{
-  "detail": "Validation error: field required"
-}
-
-// 404 Not Found
-{
-  "detail": "Patient not found"
-}
-
-// 500 Internal Server Error
-{
-  "detail": "Internal server error"
-}
+│       ├── patients.py      # Patient endpoints
+│       └── appointments.py  # Appointment endpoints
+├── tests/                   # Test suite
+├── .env                    # Environment variables
+├── .env.example            # Example environment variables
+├── requirements.txt        # Python dependencies
+├── init_db.py             # Database initialization
+└── README.md              # Project documentation
 ```
 
 ## 🧪 Testing
 
-### Running Tests
+Run the test suite with pytest:
 
 ```bash
-# Install test dependencies (if not already installed)
+# Install test dependencies
 pip install pytest pytest-cov
 
 # Run all tests
 pytest
 
-# Run specific test file
-pytest tests/test_patients.py
+# Run with coverage report
+pytest --cov=app tests/
 ```
-
-## 🛠 Project Structure
-
-```
-med-crud-fastapi/
-├── app/                      # Application package
-│   ├── __init__.py           # Package initialization
-│   ├── main.py               # FastAPI application
-│   ├── config.py             # Configuration settings
-│   ├── database.py           # Database connection
-│   ├── models.py             # SQLAlchemy models
-│   ├── schemas.py            # Pydantic schemas
-│   ├── crud.py               # Database operations
-│   └── routers/              # API routes
-│       ├── __init__.py
-│       ├── patients.py       # Patient endpoints
-│       └── appointments.py   # Appointment endpoints
-├── tests/                    # Test files
-├── .env.example              # Example environment variables
-├── requirements.txt          # Project dependencies
-├── init_db.py               # Database initialization
-└── README.md                # This file
-```
-
-## 📝 Example Requests
-
-### Create a New Patient
-```bash
-curl -X 'POST' \
-  'http://localhost:8000/api/patients' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "first_name": "John",
-    "last_name": "Doe",
-    "date_of_birth": "1985-05-15",
-    "gender": "Male",
-    "phone_number": "+254723242435",
-    "email": "john.doe@example.com",
-    "address": "123 Moi Avenue, Nairobi"
-  }'
-```
-
-### Schedule an Appointment
-```bash
-curl -X 'POST' \
-  'http://localhost:8000/api/appointments' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "patient_id": 1,
-    "appointment_date": "2025-10-01T09:00:00",
-    "description": "Annual checkup"
-  }'
-```
-
-## 👏 Acknowledgments
-
-- FastAPI for the amazing framework
-- SQLAlchemy for ORM support
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! Please follow these steps:
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## 🙏 Acknowledgments
-
-- [FastAPI](https://fastapi.tiangolo.com/) - The web framework used
-- [SQLAlchemy](https://www.sqlalchemy.org/) - The ORM for database operations
-- [Pydantic](https://pydantic-docs.helpmanual.io/) - Data validation and settings management
-- [Uvicorn](https://www.uvicorn.org/) - ASGI server
-- [Python](https://www.python.org/) - The programming language used
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-MIT License
+---
 
-Copyright (c) 2024 Your Name
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+<div align="center">
+  <p>Made by the Clinic Management API Team</p>
+</div>
