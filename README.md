@@ -191,6 +191,46 @@ print("New Patient Created:", response.json())
 | `PUT` | `/appointments/{id}` | Update an appointment |
 | `DELETE` | `/appointments/{id}` | Cancel an appointment (soft delete) |
 
+## 🛠️ Usage Examples
+
+### Creating a New Patient
+```bash
+curl -X 'POST' \
+  'http://127.0.0.1:8000/patients/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "first_name": "John",
+    "last_name": "Doe",
+    "date_of_birth": "1990-01-01",
+    "gender": "male",
+    "phone_number": "1234567890",
+    "email": "john.doe@example.com",
+    "address": "123 Main St"
+  }'
+```
+
+### Getting All Patients
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8000/patients/' \
+  -H 'accept: application/json'
+```
+
+### Creating an Appointment
+```bash
+curl -X 'POST' \
+  'http://127.0.0.1:8000/appointments/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "patient_id": 1,
+    "appointment_date": "2024-01-15T10:00:00",
+    "status": "scheduled",
+    "notes": "Routine checkup"
+  }'
+```
+
 ## 🧪 Testing
 
 ### Running Tests
