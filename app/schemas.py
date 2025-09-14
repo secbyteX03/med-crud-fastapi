@@ -46,8 +46,8 @@ class AppointmentUpdate(BaseModel):
 class Appointment(AppointmentBase):
     id: int
     created_at: datetime
-    updated_at: datetime
-    patient: Patient
+    updated_at: Optional[datetime] = None
+    patient: Optional[Patient] = None
 
     class Config:
         from_attributes = True
