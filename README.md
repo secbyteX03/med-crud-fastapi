@@ -231,6 +231,76 @@ curl -X 'POST' \
   }'
 ```
 
+## 📁 Project Structure
+
+```
+med-crud-fastapi/
+├── app/
+│   ├── __init__.py
+│   ├── main.py           # FastAPI application
+│   ├── config.py         # Configuration settings
+│   ├── database.py       # Database connection
+│   ├── models.py         # SQLAlchemy models
+│   ├── schemas.py        # Pydantic schemas
+│   ├── crud.py           # Database operations
+│   └── routers/          # API routes
+│       ├── __init__.py
+│       ├── patients.py    # Patient endpoints
+│       └── appointments.py # Appointment endpoints
+├── .env                  # Environment variables
+├── .env.example          # Example environment variables
+├── requirements.txt      # Python dependencies
+├── init_db.py           # Database initialization
+└── README.md            # This file
+```
+
+## 🧠 Advanced Usage
+
+### Using Python Requests
+
+```python
+import requests
+import json
+
+# Create a new patient
+url = "http://127.0.0.1:8000/patients/"
+headers = {
+    "accept": "application/json",
+    "Content-Type": "application/json"
+}
+payload = {
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "date_of_birth": "1985-05-20",
+    "gender": "female",
+    "phone_number": "0987654321",
+    "email": "jane.smith@example.com",
+    "address": "456 Oak St"
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+print(response.json())
+```
+
+### Common Error Responses
+
+```json
+// 400 Bad Request
+{
+  "detail": "Validation error: field required"
+}
+
+// 404 Not Found
+{
+  "detail": "Patient not found"
+}
+
+// 500 Internal Server Error
+{
+  "detail": "Internal server error"
+}
+```
+
 ## 🧪 Testing
 
 ### Running Tests
@@ -307,8 +377,3 @@ curl -X 'POST' \
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-- [x] Requirements file with all dependencies
-
-## License
-
-This project is licensed under the MIT License.
