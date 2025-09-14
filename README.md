@@ -126,7 +126,7 @@ curl -X 'POST' 'http://127.0.0.1:8000/patients/' \
     "last_name": "Doe",
     "date_of_birth": "1990-01-01",
     "gender": "male",
-    "phone_number": "1234567890",
+    "phone_number": "+254738465738",
     "email": "john.doe@example.com",
     "address": "123 Main St"
   }'
@@ -147,7 +147,7 @@ new_patient = {
     "last_name": "Smith",
     "date_of_birth": "1985-05-20",
     "gender": "female",
-    "phone_number": "0987654321",
+    "phone_number": "+254738465744",
     "email": "jane.smith@example.com",
     "address": "456 Oak St"
 }
@@ -185,6 +185,69 @@ print("New Patient:", response.json())
 | `POST` | `/appointments/` | Create new appointment | Appointment data |
 | `PUT` | `/appointments/{id}` | Update appointment | Appointment ID, Updated data |
 | `DELETE` | `/appointments/{id}` | Cancel appointment | Appointment ID |
+
+## 🧪 Testing
+
+The application includes a comprehensive test suite to ensure reliability and prevent regressions. The tests are written using `pytest` and include both unit and integration tests.
+
+### Test Structure
+
+```
+app/tests/
+├── __init__.py
+├── test_patients.py    # Tests for patient endpoints
+└── test_appointments.py # Tests for appointment endpoints
+```
+
+Test fixtures and configurations are included directly in the test files.
+
+### Running Tests
+
+To run the test suite, use the following command:
+
+```bash
+pytest app/tests/ -v
+```
+
+### Test Coverage
+
+The test suite covers:
+
+1. **Patient Endpoints**
+   - Creating new patients
+   - Retrieving patient details
+   - Updating patient information
+   - Deleting patients
+   - Error handling for invalid requests
+
+2. **Appointment Endpoints**
+   - Scheduling new appointments
+   - Retrieving appointment details
+   - Updating appointments
+   - Cancelling appointments (soft delete)
+   - Error handling for invalid requests
+   - Validation of appointment dates and statuses
+
+### Test Database
+
+- Tests use a separate SQLite database (`test_clinic.db`) to avoid affecting development data
+- The test database is automatically created and destroyed with each test run
+- All database operations are rolled back after each test to ensure test isolation
+
+### Fixtures
+
+Key test fixtures include:
+- `test_db`: Sets up and tears down the test database
+- `client`: Provides a test client for making HTTP requests
+- Test data factories for creating consistent test data
+
+### Recent Test Improvements
+
+- Fixed issues with database session management in tests
+- Added comprehensive error handling tests
+- Improved test isolation and reliability
+- Added validation for response schemas
+- Implemented proper cleanup of test data
 
 ## 📁 Project Structure
 
