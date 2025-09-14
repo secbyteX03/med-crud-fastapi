@@ -175,21 +175,21 @@ print("New Patient Created:", response.json())
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/patients` | Get all patients |
-| `GET` | `/api/patients/{id}` | Get a specific patient |
-| `POST` | `/api/patients` | Create a new patient |
-| `PUT` | `/api/patients/{id}` | Update a patient |
-| `DELETE` | `/api/patients/{id}` | Delete a patient |
+| `GET` | `/patients/` | Get all patients |
+| `GET` | `/patients/{id}` | Get a specific patient |
+| `POST` | `/patients/` | Create a new patient |
+| `PUT` | `/patients/{id}` | Update a patient |
+| `DELETE` | `/patients/{id}` | Delete a patient |
 
 ### Appointments
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/appointments` | Get all appointments |
-| `GET` | `/api/appointments/{id}` | Get a specific appointment |
-| `POST` | `/api/appointments` | Create a new appointment |
-| `PUT` | `/api/appointments/{id}` | Update an appointment |
-| `DELETE` | `/api/appointments/{id}` | Cancel an appointment (soft delete) |
+| `GET` | `/appointments/` | Get all appointments |
+| `GET` | `/appointments/{id}` | Get a specific appointment |
+| `POST` | `/appointments/` | Create a new appointment |
+| `PUT` | `/appointments/{id}` | Update an appointment |
+| `DELETE` | `/appointments/{id}` | Cancel an appointment (soft delete) |
 
 ## 🧪 Testing
 
