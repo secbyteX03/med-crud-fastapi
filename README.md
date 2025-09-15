@@ -47,7 +47,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/secbyteX03/med-crud-fastapi.git
+   git clone -b main https://github.com/secbyteX03/med-crud-fastapi.git
    cd med-crud-fastapi
    ```
 
@@ -199,15 +199,27 @@ app/tests/
 └── test_appointments.py # Tests for appointment endpoints
 ```
 
-Test fixtures and configurations are included directly in the test files.
-
 ### Running Tests
 
-To run the test suite, use the following command:
+1. Install test dependencies:
+   ```bash
+   pip install pytest pytest-cov
+   ```
 
-```bash
-pytest app/tests/ -v
-```
+2. Run all tests:
+   ```bash
+   pytest
+   ```
+
+3. Run with coverage report:
+   ```bash
+   pytest --cov=app tests/
+   ```
+
+   For more verbose output:
+   ```bash
+   pytest app/tests/ -v
+   ```
 
 ### Test Coverage
 
@@ -230,7 +242,7 @@ The test suite covers:
 
 ### Test Database
 
-- Tests use a separate SQLite database (`test_clinic.db`) to avoid affecting development data
+- Tests use a separate SQLite database to avoid affecting development data
 - The test database is automatically created and destroyed with each test run
 - All database operations are rolled back after each test to ensure test isolation
 
@@ -273,20 +285,7 @@ med-crud-fastapi/
 └── README.md              # Project documentation
 ```
 
-## 🧪 Testing
 
-Run the test suite with pytest:
-
-```bash
-# Install test dependencies
-pip install pytest pytest-cov
-
-# Run all tests
-pytest
-
-# Run with coverage report
-pytest --cov=app tests/
-```
 
 ## 🤝 Contributing
 
@@ -296,7 +295,7 @@ We welcome contributions! Please follow these steps:
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+5. Open a Pull Request to the `main` branch
 
 ## 📄 License
 
