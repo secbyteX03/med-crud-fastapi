@@ -18,33 +18,51 @@ from app.models import Patient, Appointment
 from app.main import app
 from app import schemas
 
-# Create a new SQLAlchemy engine and session for testing
-TEST_DB_PATH = "test_clinic_appointments.db"
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{TEST_DB_PATH}"
+# Create a temporary SQLite database file for testing
+import tempfile
+import os
 
-# Remove test database if it exists
-try:
-    os.remove(TEST_DB_PATH)
-except OSError:
-    pass
+# Create a temporary file for the test database
+temp_db = tempfile.NamedTemporaryFile(delete=False, suffix='.db')
+temp_db_path = temp_db.name
+temp_db.close()
 
+# Set up the database URL for SQLite
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{temp_db_path}"
+
+# Create engine with a single connection
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, 
+    connect_args={"check_same_thread": False}
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create all tables
+# Create all tables in the test database
 Base.metadata.create_all(bind=engine)
 
-# Override the get_db dependency
-def override_get_db():
+# Clean up the temporary database file after tests
+import atexit
+import os
+
+def cleanup():
     try:
-        db = TestingSessionLocal()
+        if os.path.exists(temp_db_path):
+            os.unlink(temp_db_path)
+    except Exception as e:
+        print(f"Error cleaning up test database: {e}")
+
+atexit.register(cleanup)
+
+# Function to get a database session for the app
+def get_test_db():
+    db = TestingSessionLocal()
+    try:
         yield db
     finally:
         db.close()
 
-app.dependency_overrides[get_db] = override_get_db
+# Override the get_db dependency in the FastAPI app
+app.dependency_overrides[get_db] = get_test_db
 
 # Test data
 TEST_PATIENT = {
@@ -67,10 +85,11 @@ TEST_APPOINTMENT = {
     "description": "Initial consultation"  # Changed from 'notes' to 'description' to match schema
 }
 
-# Fixture to create a test database
+# Fixture to create a test database with proper isolation
 @pytest.fixture(scope="function")
 def test_db():
-    # Create all tables
+    # Drop all tables and recreate them to ensure a clean state
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     
     # Create a new database session
@@ -79,27 +98,33 @@ def test_db():
     try:
         yield db
     finally:
-        # Rollback any transactions that were active
+        # Clean up
         db.rollback()
-        # Close the session
         db.close()
-        # Drop all tables
-        Base.metadata.drop_all(bind=engine)
 
-# Fixture to get a test client
-@pytest.fixture(scope="function")
+# Fixture to get a test client with proper isolation
+@pytest.fixture
 def client(test_db):
-    # Reset the database state
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    # Use the test_db session for the client
+    def override_get_db():
+        try:
+            yield test_db
+        finally:
+            test_db.rollback()
     
-    # Create the test client
+    # Override the get_db dependency
+    app.dependency_overrides[get_db] = override_get_db
+    
     with TestClient(app) as test_client:
         yield test_client
+    
+    # Clear the dependency overrides
+    app.dependency_overrides.clear()
 
 # Helper function to create a test patient
 def create_test_patient(client):
     response = client.post("/api/patients/", json=TEST_PATIENT)
+    assert response.status_code == 201, f"Failed to create test patient: {response.text}"
     return response.json()["id"]
 
 # Test appointment endpoints
@@ -211,27 +236,78 @@ def test_delete_appointment(client):
 
 def test_get_appointments_list(client):
     """Test retrieving a list of appointments"""
-    # First create a patient
-    patient_id = create_test_patient(client)
-    
-    # Create two test appointments
-    for i in range(2):
-        appointment_data = TEST_APPOINTMENT.copy()
-        appointment_data["patient_id"] = patient_id
-        appointment_data["appointment_date"] = get_future_date(i + 1)
-        client.post("/api/appointments/", json=appointment_data)
-    
-    # Get the list of appointments
-    response = client.get("/api/appointments/")
-    assert response.status_code == 200
-    
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) == 2
-    assert all(appt["patient_id"] == patient_id for appt in data)
-    # Verify each appointment has the expected fields
-    for appt in data:
-        assert "id" in appt
-        assert "created_at" in appt
-        # updated_at might be None for newly created records
-        assert appt.get("updated_at") is None or isinstance(appt["updated_at"], str)
+    # Write debug output to a file
+    with open('test_debug.log', 'w') as f:
+        f.write("=== Starting test_get_appointments_list ===\n\n")
+        
+        # First create a patient
+        f.write("=== Creating test patient ===\n")
+        patient_response = client.post("/api/patients/", json=TEST_PATIENT)
+        patient_data = patient_response.json()
+        patient_id = patient_data["id"]
+        f.write(f"Created patient with ID: {patient_id}\n")
+        f.write(f"Patient creation status: {patient_response.status_code}\n")
+        f.write(f"Patient creation response: {patient_response.text}\n\n")
+        
+        # Verify patient was created
+        patient_get = client.get(f"/api/patients/{patient_id}")
+        f.write(f"Patient get status: {patient_get.status_code}\n")
+        f.write(f"Patient data: {patient_get.text}\n\n")
+        
+        # Create two test appointments
+        appointment_ids = []
+        for i in range(2):
+            f.write(f"\n=== Creating test appointment {i+1} ===\n")
+            appointment_data = TEST_APPOINTMENT.copy()
+            appointment_data["patient_id"] = patient_id
+            appointment_data["appointment_date"] = get_future_date(i + 1)
+            f.write(f"Sending appointment data: {appointment_data}\n")
+            
+            response = client.post("/api/appointments/", json=appointment_data)
+            f.write(f"Appointment {i+1} creation status: {response.status_code}\n")
+            f.write(f"Appointment {i+1} creation response: {response.text}\n")
+            
+            if response.status_code == 201:
+                appt_data = response.json()
+                appointment_ids.append(appt_data["id"])
+                f.write(f"Created appointment {i+1} with ID: {appt_data['id']}\n")
+                
+                # Verify appointment was created
+                appt_get = client.get(f"/api/appointments/{appt_data['id']}")
+                f.write(f"Appointment {i+1} get status: {appt_get.status_code}\n")
+                f.write(f"Appointment {i+1} data: {appt_get.text}\n")
+        
+        # Get the list of appointments
+        f.write("\n=== Getting list of appointments ===\n")
+        response = client.get("/api/appointments/")
+        f.write(f"Get appointments list status: {response.status_code}\n")
+        f.write(f"Response content: {response.text}\n")
+        
+        # Verify the response
+        assert response.status_code == 200, f"Expected status code 200 but got {response.status_code}"
+        
+        data = response.json()
+        f.write(f"\nParsed data type: {type(data)}\n")
+        f.write(f"Number of appointments: {len(data)}\n")
+        
+        assert isinstance(data, list), f"Expected a list but got {type(data)}"
+        assert len(data) == 2, f"Expected 2 appointments but got {len(data)}. Data: {data}"
+        
+        # Write each appointment to the debug file
+        f.write("\n=== Appointments in response ===\n")
+        for i, appt in enumerate(data):
+            f.write(f"Appointment {i+1}: {appt}\n")
+            
+            # Verify each appointment has the expected fields
+            required_fields = ["id", "patient_id", "appointment_date", "status", "description", "created_at"]
+            for field in required_fields:
+                assert field in appt, f"Appointment {i+1} missing required field: {field}"
+            
+            # Verify patient_id matches
+            assert appt["patient_id"] == patient_id, f"Appointment {i+1} has wrong patient_id: {appt['patient_id']} (expected {patient_id})"
+            
+            # Verify updated_at is either None or a string
+            assert appt.get("updated_at") is None or isinstance(appt["updated_at"], str), \
+                f"Appointment {i+1} has invalid 'updated_at' field: {appt.get('updated_at')}"
+        
+        f.write("\n=== test_get_appointments_list completed successfully ===\n")
